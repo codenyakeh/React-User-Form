@@ -1,59 +1,85 @@
-import React, { Component } from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Row, Col } from 'react-bootstrap'
-import './App.css';
-import Users from './Components/Users';
-import AddUserForm from './Components/AddUserForm';
+import React, { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Row, Col, Container } from "react-bootstrap";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import { db } from "./firebase/config";
+import { addUser } from "./action/actions";
+import { useDispatch } from "react-redux";
+import Users from "./Components/Users";
+import AddUserForm from "./Components/AddUserForm";
 
+function App() {
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    const readData = async () => {
+      const q = query(collection(db, "adminUsers"), orderBy("timestamp", "asc"));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const userArr = [];
+        querySnapshot.forEach((doc) => {
+          userArr.push(doc.data());
+        });
+        dispatch(addUser(userArr));
+        console.log(userArr);
+      });
+    };
+    readData();
+  }, []);
 
-class App extends Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      users: [
-        {
-          name: "perez",
-          email: "emricanyakeh@mail.com",
-          gen: "21"
-        },
-        {
-          name: "Jon",
-          email: "mricanyakeh@mail.com",
-          gen: "23"
-        },
-        {
-          name: "job",
-          email: "ricanyakeh@mail.com",
-          gen: "24"
-        },
-      ]
-    }
-  }
+  // const [users, setUsers] = useState([
+  //   {
+  //     ContactName: "Emrica",
+  //     Location: "East",
+  //     Number: "21",
+  //     id: "ggggggggg123",
+  //   },
+  //   { ContactName: "Emma", Location: "West", Number: "22", id: "ggggggggg124" },
+  //   { ContactName: "Eno", Location: "north", Number: "23", id: "ggggggggg125" },
+  // ]);
+  // const addNewUser = (user) => {
+  //   user.id = Math.random().toString();
+  //   setUsers([...users, user]);
+  //   console.log(user);
+  // };
 
-  addNewUser = (user) => {
-    this.setState({
-      users: [...this.state.users, user]
+  // const deleteUser = (id) => {
+  //   // setUsers(users.filter((user) => user.id !== id));
+  //   setUsers(
+  //     users.filter((user) => {
+  //       if (user.id !== id) {
+  //         return user;
+  //       }
+  //     })
+  //   );
+  // };
+  // const EditUser = (id, newData) => {
+  //   setUsers(
+  //     users.map((user) => {
+  //       if (user.id === id) {
+  //         return newData;
+  //       }
+  //       return user;
+  //     })
+  //   );
+  // };
 
-    })
-  }
-  render() {
-    return (
-      <>
-        <Container fluid style={{marginTop: "3rem"}}>
-          <Row>
-            <Col md="4">
-              <AddUserForm addUser={this.addNewUser}/>
-            </Col>
-            <Col>
-              <Users userData={this.state.users}/>
-            </Col>
-          </Row>
-        </Container>
-
-      </>
-    )
-  }
+  return (
+    <Container style={{ marginTop: "30px" }}>
+      <Row>
+        <Col md={6}>
+          <AddUserForm //newUser={addNewUser}
+          />
+        </Col>
+        <Col md={6}>
+          <Users
+          //userData={users}
+          //editUser={EditUser}
+          //delete={deleteUser}
+          />
+        </Col>
+      </Row>
+    </Container>
+  );
 }
 
-export default App
+export default App;
