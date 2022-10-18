@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { editUsers } from "../action/actions";
+//import { useDispatch } from "react-redux";
+//import { editUsers } from "../action/actions";
+import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { db } from "../firebase/config";
 
 function EditUserForm(props) {
   const [name, setName] = useState(props.userBio.name);
   const [email, setEmail] = useState(props.userBio.email);
   const [gen, setGen] = useState(props.userBio.gen);
-  const dispatch = useDispatch();
+  //const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     //props.editUser(props.userBio.id, { contact, location, number });
     const newUser={
-      id:props.userBio.id, name, email, gen };
-    dispatch(editUsers(newUser))
+      id:props.userBio.id, name, email, gen, timestamp: serverTimestamp};
+      try {
+        const userRef = doc(db, "adminUsers", newUser.id);
+        await updateDoc(userRef, newUser);
+      } catch (e) {
+        console.log(e)
+      }
+    //dispatch(editUsers(newUser))
     setName("");
     setEmail("");
     setGen("");

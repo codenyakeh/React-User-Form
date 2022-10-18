@@ -3,6 +3,8 @@ import { Card, Col, Button, Modal } from "react-bootstrap";
 import EditUserForm from "./EditUserForm";
 import { useDispatch } from "react-redux";
 import { deleteUser } from "../action/actions";
+import { doc, deleteDoc } from "firebase/firestore";
+import { db } from "../firebase/config";
 
 function User(props) {
   const [show, setShow] = useState(false);
@@ -10,10 +12,15 @@ function User(props) {
   const handleShow = () => setShow(true);
   const dispatch = useDispatch();
 
-  const handleDelete = (e) => {
+  const handleDelete = async (e) => {
     e.preventDefault();
+    try {
+      await deleteDoc(doc(db, "adminUsers", props.userBio.id));
+    } catch (e) {
+      console.log(e);
+    }
     //props.delete(props.userBio.id);
-    dispatch(deleteUser(props.userBio.id));
+    //dispatch(deleteUser(props.userBio.id));
   };
   return (
     <>
